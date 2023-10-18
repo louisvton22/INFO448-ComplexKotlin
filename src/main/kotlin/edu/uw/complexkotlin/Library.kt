@@ -15,14 +15,16 @@ class Library {
 // the final string should look like FIZZBUZZFIZZFIZZBUZZFIZZFIZZBUZZ for 0..15.
 // store this lambda into 'fizzbuzz' so that the tests can call it
 //
-val fizzbuzz : (IntRange) -> String = { nums -> nums.map { when (it) {
-    in listOf(15) -> "FIZZBUZZ"
-    in listOf(3, 6, 9, 12, 15) -> "FIZZ"
-    in listOf(5, 10, 15) -> "BUZZ"
-    else -> ""
-}}.fold("", { acc, elem -> acc + elem } )
-}
 
+val fizzbuzz: (IntRange) -> String =  { it ->
+    it.map { when {
+        it % 3 == 0 && it % 5 == 0 && it > 0 -> "FIZZBUZZ"
+        it % 3 == 0 && it > 0 -> "FIZZ"
+        it % 5 == 0 && it > 0 -> "BUZZ"
+        else -> ""
+    }
+    }.fold("") {curr, prev -> "$curr$prev"}
+}
 // Example usage
 /*
 if (fizzbuzz(0..1) == "")
@@ -45,35 +47,41 @@ fun Int.times(block: () -> Unit): Unit {
 fun process(message: String, block: (String) -> String): String {
     return ">>> ${message}: {" + block(message) + "}"
 }
-// Create r1 as a lambda that calls process() with message "FOO" and a block that returns "BAR"
-val r1 = { process("FOO") { "BAR"} }
 
-// Create r2 as a lambda that calls process() with message "FOO" and a block that upper-cases 
-// r2_message, and repeats it three times with no spaces: "WOOGAWOOGAWOOGA"
-val r2_message = "wooga"
-val r2 = { process("FOO") 
-    {
-        var ret = ""
-        3.times {
-            ret += r2_message.toUpperCase()
-        }
-        ret
-    } 
+val r1 = {process("FOO") {"BAR"}}
+
+val r2 = {process("FOO") {
+    var str = ""
+    3.times {
+        str += "WOOGA"
+    }
+    str
+ }
 }
-
 
 // write an enum-based state machine between talking and thinking
 enum class Philosopher {
     TALKING {
-        override fun signal() = THINKING
-        override fun toString() = "Allow me to suggest an idea..."
+        override fun signal():Philosopher {
+            return THINKING
+        }
+
+        override fun toString():String {
+            return "Allow me to suggest an idea..."
+        }
     },
+
     THINKING {
-        override fun signal() = TALKING
-        override fun toString() = "Deep thoughts...."
+        override fun signal():Philosopher {
+            return TALKING
+        }
+
+        override fun toString(): String {
+            return "Deep thoughts...."
+        }
     };
 
-    abstract fun signal(): Philosopher
+    abstract fun signal():Philosopher
 }
 
 // create an class "Command" that can be used as a function (provide an "invoke()" function)
@@ -81,7 +89,7 @@ enum class Philosopher {
 // primary constructor should take a String argument ("prompt")
 // when invoked, the Command object should return a String containing the prompt and then the message
 class Command(val prompt: String) {
-    public operator fun invoke(message: String): String {
-        return prompt + message
-    }
+   operator fun invoke(message: String): String {
+       return "$prompt$message"
+   }
 }
